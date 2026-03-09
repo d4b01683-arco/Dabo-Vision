@@ -115,13 +115,35 @@
         }
 
         function play(id, tipo, s=1, e=1) {
-    document.getElementById('player-view').style.display = 'block';
+    const playerView = document.getElementById('player-view');
+    const videoFrame = document.getElementById('video-frame');
     
-    // Lista de servidores para rotación automática si uno falla
-    const servidores = [
-        tipo === 'movie' ? `https://vidsrc.icu/embed/movie/${id}` : `https://vidsrc.icu/embed/tv/${id}/${s}/${e}`,
-        tipo === 'movie' ? `https://vidsrc.me/embed/movie?tmdb=${id}` : `https://vidsrc.me/embed/tv?tmdb=${id}&sea=${s}&epi=${e}`
-    ];
+    playerView.style.display = 'block';
+    videoFrame.innerHTML = `<div style="color:var(--cyan); font-family:Orbitron; font-size:10px; padding:20px;">CONECTANDO AL SERVIDOR SEGURO...</div>`;
+
+    // Servidor Maestro con bypass de seguridad
+    const serverUrl = tipo === 'movie' 
+        ? `https://vidsrc.icu/embed/movie/${id}` 
+        : `https://vidsrc.icu/embed/tv/${id}/${s}/${e}`;
+
+    // Bypass de DaBo.03: Creamos el elemento desde cero para engañar al navegador
+    setTimeout(() => {
+        const ifrm = document.createElement("iframe");
+        ifrm.setAttribute("src", serverUrl);
+        ifrm.style.width = "100%";
+        ifrm.style.height = "100%";
+        ifrm.setAttribute("frameborder", "0");
+        ifrm.setAttribute("allowfullscreen", "true");
+        ifrm.setAttribute("webkitallowfullscreen", "true");
+        ifrm.setAttribute("mozallowfullscreen", "true");
+        // Referrer policy strict-origin para saltar el bloqueo de GitHub
+        ifrm.setAttribute("referrerpolicy", "no-referrer-when-downgrade");
+        
+        videoFrame.innerHTML = "";
+        videoFrame.appendChild(ifrm);
+    }, 500);
+}
+
 
     // Inyectamos el reproductor con protección de cabeceras
     document.getElementById('video-frame').innerHTML = `
